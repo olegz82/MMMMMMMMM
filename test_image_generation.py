@@ -39,7 +39,11 @@ def mock_client():
 @pytest.fixture
 def sample_image_bytes():
     """Create sample image bytes (simple JPEG header)."""
-    # Minimal JPEG header for testing
+    # Minimal JPEG structure for testing:
+    # \xff\xd8 = SOI (Start of Image)
+    # \xff\xe0 = APP0 marker (JFIF)
+    # JFIF header data
+    # \xff\xd9 = EOI (End of Image)
     return b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xff\xd9'
 
 
@@ -131,3 +135,13 @@ def test_custom_prompt(mock_client, sample_image_bytes, tmp_path):
     call_args = mock_client.models.generate_content.call_args
     parts = call_args.kwargs['contents'][0].parts
     assert parts[0].text == custom_prompt
+
+
+def test_unsupported_image_format(tmp_path):
+    """Test that unsupported image format raises an error."""
+    image_file = tmp_path / "test.bmp"
+    image_file.write_bytes(b'fake image data')
+    
+    with patch.dict(os.environ, {'GEMINI_API_KEY': 'test_key'}):
+        with pytest.raises(ValueError, match="Unsupported image format"):
+            generate_content_with_image(str(image_file))

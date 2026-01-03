@@ -53,7 +53,10 @@ def generate_content_with_image(image_path: str, prompt: str = "What's this imag
     elif image_path.lower().endswith('.webp'):
         mime_type = "image/webp"
     else:
-        mime_type = "image/jpeg"  # default
+        raise ValueError(
+            f"Unsupported image format. Supported formats: .jpg, .jpeg, .png, .gif, .webp. "
+            f"Got: {os.path.splitext(image_path)[1]}"
+        )
     
     # Create parts: text + image (equivalent to Go code)
     parts = [
