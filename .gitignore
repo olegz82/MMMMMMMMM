@@ -37,3 +37,7 @@ build/
 
 # Editor / OS files
 .DS_Store
+
+# Test files
+test_sample.jpg
+*.pytest_cache
